@@ -1,6 +1,9 @@
 import { error } from "console";
 import User from "../models/user.models.js";
 import crypto from "crypto";
+import nodemailer from "nodemailer";
+  
+
 
 
 const registerUser = async (req, res) => {
@@ -22,7 +25,7 @@ const registerUser = async (req, res) => {
     
     // create new user 
 const user = await User.create({
-    name,email,password
+    username,email,password
 })
 // agar ye fullfill nahi hua 
 
@@ -33,20 +36,38 @@ if(!user){
 }
     const token = crypto.randomBytes(32).toString("hex");
     user.verificationToken = token 
-    await user.save()
+    await user.save();
 
+    const transporter = nodemailer.createTransport({
+      host: process.env.MAILTRAP_HOST,
+      port: process.env.MAILTRAP_PORT,
+      secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
+      auth: {
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    const mailOption= {
+      from: process.env.MAILTRAP_SENDERMAIL,
+      to: user.email,
+      subject:"Verify your email",
+      text:`Please click on the following link ${process.env.BASE_URL}/api/v1/user/verify/${token}`,      
+    }
+    await transporter.sendMail(mailOption)
+     return res.status(200).json({
+       message: "User registered Successfully",
+       success: true,
+     });
 
   } catch (error) {
-    res.status(400).json({
-        message:"Something went Wrong",
+    return res.status(400).json({
+        message:"User is not registered",
+        success:false,
         error,
     })
     
   }
-
-  res.status(200).json({
-    message: "User registered successfully",
-  });
 };
 
 const login = async (req, res) => {
