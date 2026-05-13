@@ -312,7 +312,7 @@ const resetPassword = async(req,res) =>{
      // get token from params 
      const {token}= req.params
 
-     //get neww password
+     //get new password
      const {password} = req.body;
     // validate 
 
@@ -355,4 +355,4 @@ const resetPassword = async(req,res) =>{
    }
 }
 
-export { registerUser, verifyUser, login, getMe, logoutUser, forgotPassword,resetPassword };
+export { registerUser, login, verifyUser,  logoutUser, getMe, forgotPassword,resetPassword };
